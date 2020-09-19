@@ -205,12 +205,13 @@ Yes ✅ The url in DRM type played smoothly. All dash type contents are played o
 ```kotlin
  trackSelector!!.setParameters(trackSelector!!.buildUponParameters().setMaxVideoSize(200, 200))
  ``` 
+<br>
 
 <img src="https://github.com/halilozel1903/ExoPlayerDrm/blob/master/drm_not_config1.png" width="250" /> <img src="https://github.com/halilozel1903/ExoPlayerDrm/blob/master/drm_not_config2.png" width="250" /> <br>
 
 <br>
 
-Resources 📚
+## Resources 📚
 - https://exoplayer.dev/drm.html
 - https://streaminglearningcenter.com/articles/what-is-drm.html
 - https://digitalguardian.com/blog/what-digital-rights-management
