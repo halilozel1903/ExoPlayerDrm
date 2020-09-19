@@ -190,10 +190,32 @@ We call the ```initializePlayer()``` function inside onCreate.
         initializePlayer()
     }
 ```
+<br>
 
+### Result 📌
 
-### Result 
+Yes ✅ The url in DRM type played smoothly. All dash type contents are played on the player with the Drm setting.
 
+<img src="https://github.com/halilozel1903/ExoPlayerDrm/blob/master/dash_drm1.png" width="250" /> <img src="https://github.com/halilozel1903/ExoPlayerDrm/blob/master/dash_drm2.png" width="250" /> <br>
+
+<br>
+
+**But** ```drmSessionManager```  cannot be played when not in use.
+
+```kotlin
+ trackSelector!!.setParameters(trackSelector!!.buildUponParameters().setMaxVideoSize(200, 200))
+ ``` 
+
+<img src="https://github.com/halilozel1903/ExoPlayerDrm/blob/master/drm_not_config1.png" width="250" /> <img src="https://github.com/halilozel1903/ExoPlayerDrm/blob/master/drm_not_config2.png" width="250" /> <br>
+
+<br>
+
+Resources 📚
+- https://exoplayer.dev/drm.html
+- https://streaminglearningcenter.com/articles/what-is-drm.html
+- https://digitalguardian.com/blog/what-digital-rights-management
+- https://bitmovin.com/demos/stream-test?format=dash&manifest=https%3A%2F%2Fbitmovin-a.akamaihd.net%2Fcontent%2Fart-of-motion_drm%2Fmpds%2F11331.mpd
+<br>
 
 ## License 📋
 ```
