@@ -1,6 +1,6 @@
 ## What is DRM? 🤔
 
-![Screenshot](https://secureservercdn.net/50.62.172.232/cng.324.myftpupload.com/wp-content/uploads/2016/07/whatisDRM6.png)
+![Screenshot](https://miro.medium.com/max/1400/1*LtFxnStWjom2xYQvZsHFow.png)
 
 Digital rights management (DRM) is a way to protect copyrights for digital media. This approach includes the use of technologies that limit the copying and use of copyrighted works and proprietary software.
 
