@@ -38,11 +38,11 @@ In order to play a Drm video in Exoplayer, we need to have a DASH(.mdp) type vid
 
 First of all, we can start our example by following the steps below.
 
-### Step - 1
+### Step - 1️⃣
 
 We are creating an Android project in the Kotlin language.
 
-### Step - 2
+### Step - 2️⃣
 
 We add the internet permission to the Android Manifest file.
 
@@ -50,7 +50,7 @@ We add the internet permission to the Android Manifest file.
 <uses-permission android:name="android.permission.INTERNET"/>
 ```
 
-### Step - 3
+### Step - 3️⃣
 
 We add the link of the ExoPlayer library to the .build gradle file.
 
@@ -59,7 +59,7 @@ implementation 'com.google.android.exoplayer:exoplayer:2.10.1'
 ```
 
 
-### Step - 4
+### Step - 4️⃣
 
 If not enabled already, you need to turn on Java 8 support in all build.gradle files depending on ExoPlayer, by adding the following to the android section:
 
@@ -69,7 +69,7 @@ compileOptions {
 }
 ```
 
-### Step - 5
+### Step - 5️⃣
 
 We add playerView to the ```activity_main.xml``` file.
 
@@ -93,7 +93,7 @@ We add playerView to the ```activity_main.xml``` file.
 ```
 
 
-### Step - 6
+### Step - 6️⃣
 
 Player, url and Track Selector variables have been defined.
 
@@ -104,7 +104,7 @@ private var trackSelector: DefaultTrackSelector? = null
 private var url: String? = null
 ```
 
-### Step - 7
+### Step - 7️⃣
 
 A function has been created for the Media Source operation.
 
@@ -118,7 +118,7 @@ A function has been created for the Media Source operation.
     }
  ```
  
- ### Step - 8
+ ### Step - 8️⃣
  
  We have created a method in which the necessary operations are performed to play a drm type video.
  
@@ -133,7 +133,7 @@ A function has been created for the Media Source operation.
     }
  ```
  
-  ### Step - 9
+  ### Step - 9️⃣
   
   Added url, drm license to play. It is made ready to be played.
   
@@ -177,7 +177,7 @@ A function has been created for the Media Source operation.
     }
   ```
 
-### Step - 10
+### Step - 🔟
 
 We call the ```initializePlayer()``` function inside onCreate.
 
@@ -222,7 +222,7 @@ Yes ✅ The url in DRM type played smoothly. All dash type contents are played o
 ```
 MIT License
 
-Copyright (c) 2020 Halil Özel
+Copyright (c) 2021 Halil OZEL
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
