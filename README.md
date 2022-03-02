@@ -179,7 +179,7 @@ A function has been created for the Media Source operation.
 
 ### Step - 🔟
 
-We call the ```initializePlayer()``` function inside onCreate.
+Call the ```initializePlayer()``` function inside `onCreate.`
 
   ```kotlin
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -222,7 +222,7 @@ Yes ✅ The url in DRM type played smoothly. All dash type contents are played o
 ```
 MIT License
 
-Copyright (c) 2021 Halil OZEL
+Copyright (c) 2022 Halil OZEL
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
