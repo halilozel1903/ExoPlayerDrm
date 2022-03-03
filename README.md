@@ -137,9 +137,9 @@ A function has been created for the Media Source operation.
   
   Added url, drm license to play. It is made ready to be played.
   
-  Drm License Url : https://proxy.uat.widevine.com/proxy?provider=widevine_test
+  **Drm License Url** : https://proxy.uat.widevine.com/proxy?provider=widevine_test
   
-  Drm Url : https://bitmovin-a.akamaihd.net/content/art-of-motion_drm/mpds/11331.mpd
+  **Drm Url** : https://bitmovin-a.akamaihd.net/content/art-of-motion_drm/mpds/11331.mpd
   
  ```kotlin 
   private fun initializePlayer() {
