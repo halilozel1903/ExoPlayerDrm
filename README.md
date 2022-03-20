@@ -55,7 +55,7 @@ We add the internet permission to the Android Manifest file.
 We add the link of the ExoPlayer library to the .build gradle file.
 
 ```kotlin 
-implementation 'com.google.android.exoplayer:exoplayer:2.10.1'
+implementation 'com.google.android.exoplayer:exoplayer:2.17.1'
 ```
 
 
@@ -76,18 +76,28 @@ We add playerView to the ```activity_main.xml``` file.
 
 ```kotlin 
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout 
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:argType="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <com.google.android.exoplayer2.ui.PlayerView
-        android:focusable="true"
+    <com.google.android.exoplayer2.ui.StyledPlayerView
         android:id="@+id/playerView"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        argType:resize_mode="fixed_width"
+        argType:show_buffering="when_playing"
+        argType:show_fastforward_button="true"
+        argType:show_next_button="false"
+        argType:show_previous_button="false"
+        argType:show_rewind_button="true"
+        argType:show_subtitle_button="true"
+        argType:use_artwork="true"
+        argType:use_controller="true">
+
+    </com.google.android.exoplayer2.ui.StyledPlayerView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 ```
@@ -95,27 +105,29 @@ We add playerView to the ```activity_main.xml``` file.
 
 ### Step - 6️⃣
 
-Player, url and Track Selector variables have been defined.
+Player, binding variables have been defined.
 
 ```kotlin
-private var playerView: PlayerView? = null
-private var player: SimpleExoPlayer? = null
-private var trackSelector: DefaultTrackSelector? = null
-private var url: String? = null
+private lateinit var playerView: ExoPlayer
+private lateinit var binding: ActivityMainBinding
 ```
 
 ### Step - 7️⃣
 
-A function has been created for the Media Source operation.
+A function has been created for the Factory operation.
 
    ```kotlin
-    private fun buildDashMediaSource(uri: Uri): DashMediaSource {
-        val userAgent = "ExoPlayer-Drm"
-        val dashChunkSourceFactory: DashChunkSource.Factory = DefaultDashChunkSource.Factory(
-                DefaultHttpDataSourceFactory("userAgent", DefaultBandwidthMeter()))
-        val manifestDataSourceFactory = DefaultHttpDataSourceFactory(userAgent)
-        return DashMediaSource.Factory(dashChunkSourceFactory, manifestDataSourceFactory).createMediaSource(uri)
-    }
+     val defaultHttpDataSourceFactory = DefaultHttpDataSource.Factory()
+                .setUserAgent(userAgent)
+                .setTransferListener(
+                    DefaultBandwidthMeter.Builder(context)
+                        .setResetOnNetworkTypeChange(false)
+                        .build()
+                )
+
+            val dashChunkSourceFactory: DashChunkSource.Factory = DefaultDashChunkSource.Factory(
+                defaultHttpDataSourceFactory
+            )
  ```
  
  ### Step - 8️⃣
@@ -123,14 +135,20 @@ A function has been created for the Media Source operation.
  We have created a method in which the necessary operations are performed to play a drm type video.
  
    ```kotlin
-    @Throws(UnsupportedDrmException::class)
-    private fun buildDrmSessionManager(
-            uuid: UUID?, licenseUrl: String, multiSession: Boolean): DefaultDrmSessionManager<FrameworkMediaCrypto?> {
-        val licenseDataSourceFactory: HttpDataSource.Factory = DefaultHttpDataSourceFactory(Util.getUserAgent(this, application.packageName))
-        val drmCallback = HttpMediaDrmCallback(licenseUrl, licenseDataSourceFactory)
-        val mediaDrm = FrameworkMediaDrm.newInstance(uuid)
-        return DefaultDrmSessionManager(uuid, mediaDrm, drmCallback, null, multiSession)
-    }
+     val dashMediaSource =
+                DashMediaSource.Factory(dashChunkSourceFactory, manifestDataSourceFactory)
+                    .createMediaSource(
+                        MediaItem.Builder()
+                            .setUri(Uri.parse(url))
+                             // DRM Configuration
+                            .setDrmConfiguration(
+                                MediaItem.DrmConfiguration.Builder(drmSchemeUuid)
+                                    .setLicenseUri(drmLicenseUrl).build()
+                            )
+                            .setMimeType(MimeTypes.APPLICATION_MPD)
+                            .setTag(null)
+                            .build()
+                    )
  ```
  
   ### Step - 9️⃣
@@ -142,39 +160,15 @@ A function has been created for the Media Source operation.
   **Drm Url** : https://bitmovin-a.akamaihd.net/content/art-of-motion_drm/mpds/11331.mpd
   
  ```kotlin 
-  private fun initializePlayer() {
-
-        url = "https://bitmovin-a.akamaihd.net/content/art-of-motion_drm/mpds/11331.mpd"
-        var drmSessionManager: DefaultDrmSessionManager<FrameworkMediaCrypto?>? = null
-        val drmLicenseUrl = "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
-        val drmSchemeUuid = Util.getDrmUuid(C.WIDEVINE_UUID.toString())
-
-
-        try {
-            drmSessionManager = buildDrmSessionManager(
-                    drmSchemeUuid, drmLicenseUrl, true)
-        } catch (e: UnsupportedDrmException) {
-            e.printStackTrace()
-        }
-
-
-        if (player == null) {
-            trackSelector = DefaultTrackSelector()
-            trackSelector!!.setParameters(trackSelector!!.buildUponParameters().setMaxVideoSize(200, 200))
-            player = ExoPlayerFactory.newSimpleInstance(applicationContext, trackSelector, DefaultLoadControl(), drmSessionManager)
-
-            // Bind the player to the view.
-            playerView!!.player = player
-
-            player!!.playWhenReady = true
-        }
-
-        // Build the media item.
-        val dashMediaSource = buildDashMediaSource(Uri.parse(url))
-
-        // Prepare the player.
-        player!!.prepare(dashMediaSource, true, false)
-    }
+  // Prepare the player.
+          playerView = ExoPlayer.Builder(this)
+              .setSeekForwardIncrementMs(10000)
+              .setSeekBackIncrementMs(10000)
+              .build()
+          playerView.playWhenReady = true
+          binding.playerView.player = playerView
+          playerView.setMediaSource(dashMediaSource, true)
+          playerView.prepare()
   ```
 
 ### Step - 🔟
@@ -183,11 +177,12 @@ Call the ```initializePlayer()``` function inside `onCreate.`
 
   ```kotlin
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
-        playerView = findViewById(R.id.playerView)
-
-        initializePlayer()
+            super.onCreate(savedInstanceState)
+            binding = ActivityMainBinding.inflate(layoutInflater)
+            val view = binding.root
+            setContentView(view)
+            initializePlayer()
+        }
     }
 ```
 <br>
@@ -200,10 +195,11 @@ Yes ✅ The url in DRM type played smoothly. All dash type contents are played o
 
 <br>
 
-**But** ```drmSessionManager```  cannot be played when not in use.
+**But** ```setDrmConfiguration``` If you make a comment line, you will not be able to view the content.
 
 ```kotlin
- trackSelector!!.setParameters(trackSelector!!.buildUponParameters().setMaxVideoSize(200, 200))
+ .setDrmConfiguration(MediaItem.DrmConfiguration.Builder(drmSchemeUuid)
+                      .setLicenseUri(drmLicenseUrl).build())
  ``` 
 <br>
 
