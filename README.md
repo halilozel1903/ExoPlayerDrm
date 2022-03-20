@@ -191,7 +191,7 @@ Call the ```initializePlayer()``` function inside `onCreate.`
 
 Yes ✅ The url in DRM type played smoothly. All dash type contents are played on the player with the Drm setting.
 
-<img src="https://github.com/halilozel1903/ExoPlayerDrm/blob/master/dash_drm1.png" width="250" /> <img src="https://github.com/halilozel1903/ExoPlayerDrm/blob/master/dash_drm2.png" width="250" /> <br>
+<img src="https://github.com/halilozel1903/ExoPlayerDrm/blob/master/drm_dash_pic1.png" width="250" /> <img src="https://github.com/halilozel1903/ExoPlayerDrm/blob/master/drm_dash_pic2.png" width="250" /> <br>
 
 <br>
 
@@ -203,7 +203,7 @@ Yes ✅ The url in DRM type played smoothly. All dash type contents are played o
  ``` 
 <br>
 
-<img src="https://github.com/halilozel1903/ExoPlayerDrm/blob/master/drm_not_config1.png" width="250" /> <img src="https://github.com/halilozel1903/ExoPlayerDrm/blob/master/drm_not_config2.png" width="250" /> <br>
+<img src="https://github.com/halilozel1903/ExoPlayerDrm/blob/master/drm_dash_not_pic1.png" width="250" /> <img src="https://github.com/halilozel1903/ExoPlayerDrm/blob/master/drm_dash_not_pic2.png" width="250" /> <br>
 
 <br>
 
