@@ -24,8 +24,6 @@ Widevine “cbcs” | 7.1 | 25 | DASH, HLS (FMP4 only)
 ClearKey | 5.0 | 21 | DASH
 PlayReady SL2000 | AndroidTV | AndroidTV	| DASH, SmoothStreaming, HLS (FMP4 only) 
 
-<br>
-
 In order to play DRM protected content with ExoPlayer, the UUID of the DRM system and the license server URI should be specified when building a media item. 
 The player will then use these properties to build a default implementation of ```DrmSessionManager```, called ```DefaultDrmSessionManager```, 
 that’s suitable for most use cases. For some use cases additional DRM properties may be necessary, as outlined in the sections below.
@@ -52,7 +50,7 @@ We add the internet permission to the Android Manifest file.
 
 ### Step - 3️⃣
 
-We add the link of the ExoPlayer library to the .build gradle file.
+Add the link of the ExoPlayer library to the .build gradle file.
 
 ```kotlin 
 implementation 'com.google.android.exoplayer:exoplayer:2.17.1'
@@ -71,7 +69,7 @@ compileOptions {
 
 ### Step - 5️⃣
 
-We add playerView to the ```activity_main.xml``` file.
+Add playerView to the ```activity_main.xml``` file.
 
 
 ```kotlin 
@@ -212,7 +210,7 @@ Yes ✅ The url in DRM type played smoothly. All dash type contents are played o
 - https://streaminglearningcenter.com/articles/what-is-drm.html
 - https://digitalguardian.com/blog/what-digital-rights-management
 - https://bitmovin.com/demos/stream-test?format=dash&manifest=https%3A%2F%2Fbitmovin-a.akamaihd.net%2Fcontent%2Fart-of-motion_drm%2Fmpds%2F11331.mpd
-<br>
+
 
 ## License 📋
 ```
