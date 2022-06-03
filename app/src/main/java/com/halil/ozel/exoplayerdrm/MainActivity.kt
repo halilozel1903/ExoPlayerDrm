@@ -32,12 +32,10 @@ class MainActivity : Activity() {
 
 
     private fun initializePlayer() {
-
         val url = "https://bitmovin-a.akamaihd.net/content/art-of-motion_drm/mpds/11331.mpd"
         val drmLicenseUrl = "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
         val drmSchemeUuid = C.WIDEVINE_UUID // DRM Type
         val userAgent = "ExoPlayer-Drm"
-        // val userAgent = "userAgent"
 
         val defaultHttpDataSourceFactory = DefaultHttpDataSource.Factory()
             .setUserAgent(userAgent)
