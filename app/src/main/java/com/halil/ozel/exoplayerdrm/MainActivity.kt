@@ -32,13 +32,8 @@ class MainActivity : Activity() {
 
 
     private fun initializePlayer() {
-        val url = "https://bitmovin-a.akamaihd.net/content/art-of-motion_drm/mpds/11331.mpd"
-        val drmLicenseUrl = "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
-        val drmSchemeUuid = C.WIDEVINE_UUID // DRM Type
-        val userAgent = "ExoPlayer-Drm"
-
         val defaultHttpDataSourceFactory = DefaultHttpDataSource.Factory()
-            .setUserAgent(userAgent)
+            .setUserAgent(USER_AGENT)
             .setTransferListener(
                 DefaultBandwidthMeter.Builder(this)
                     .setResetOnNetworkTypeChange(false)
@@ -48,16 +43,16 @@ class MainActivity : Activity() {
         val dashChunkSourceFactory: DashChunkSource.Factory = DefaultDashChunkSource.Factory(
             defaultHttpDataSourceFactory
         )
-        val manifestDataSourceFactory = DefaultHttpDataSource.Factory().setUserAgent(userAgent)
+        val manifestDataSourceFactory = DefaultHttpDataSource.Factory().setUserAgent(USER_AGENT)
         val dashMediaSource =
             DashMediaSource.Factory(dashChunkSourceFactory, manifestDataSourceFactory)
                 .createMediaSource(
                     MediaItem.Builder()
-                        .setUri(Uri.parse(url))
+                        .setUri(Uri.parse(URL))
                         // DRM Configuration
                         .setDrmConfiguration(
                             MediaItem.DrmConfiguration.Builder(drmSchemeUuid)
-                                .setLicenseUri(drmLicenseUrl).build()
+                                .setLicenseUri(DRM_LICENSE_URL).build()
                         )
                         .setMimeType(MimeTypes.APPLICATION_MPD)
                         .setTag(null)
@@ -79,5 +74,12 @@ class MainActivity : Activity() {
     override fun onPause() {
         super.onPause()
         playerView.playWhenReady = false
+    }
+
+    companion object {
+        const val URL = "https://bitmovin-a.akamaihd.net/content/art-of-motion_drm/mpds/11331.mpd"
+        const val DRM_LICENSE_URL = "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
+        const val USER_AGENT = "ExoPlayer-Drm"
+        val drmSchemeUuid = C.WIDEVINE_UUID // DRM Type
     }
 }
