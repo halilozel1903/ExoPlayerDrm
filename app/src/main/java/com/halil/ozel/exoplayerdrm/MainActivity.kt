@@ -61,10 +61,10 @@ class MainActivity : Activity() {
 
 
         // Prepare the player.
-        playerView = ExoPlayer.Builder(this)
+        ExoPlayer.Builder(this)
             .setSeekForwardIncrementMs(10000)
             .setSeekBackIncrementMs(10000)
-            .build()
+            .build().also { playerView = it }
         playerView.playWhenReady = true
         binding.playerView.player = playerView
         playerView.setMediaSource(dashMediaSource, true)
