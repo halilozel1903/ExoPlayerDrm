@@ -183,7 +183,6 @@ Call the ```initializePlayer()``` function inside `onCreate.`
         }
     }
 ```
-<br>
 
 ### Result 📌
 
@@ -191,7 +190,6 @@ Yes ✅ The url in DRM type played smoothly. All dash type contents are played o
 
 <img src="https://github.com/halilozel1903/ExoPlayerDrm/blob/master/drm_dash_pic1.png" width="250" /> <img src="https://github.com/halilozel1903/ExoPlayerDrm/blob/master/drm_dash_pic2.png" width="250" /> <br>
 
-<br>
 
 **But** ```setDrmConfiguration``` If you make a comment line, you will not be able to view the content.
 
@@ -199,11 +197,9 @@ Yes ✅ The url in DRM type played smoothly. All dash type contents are played o
  .setDrmConfiguration(MediaItem.DrmConfiguration.Builder(drmSchemeUuid)
                       .setLicenseUri(drmLicenseUrl).build())
  ``` 
-<br>
 
 <img src="https://github.com/halilozel1903/ExoPlayerDrm/blob/master/drm_dash_not_pic1.png" width="250" /> <img src="https://github.com/halilozel1903/ExoPlayerDrm/blob/master/drm_dash_not_pic2.png" width="250" /> <br>
 
-<br>
 
 ## Resources 📚
 - https://exoplayer.dev/drm.html
