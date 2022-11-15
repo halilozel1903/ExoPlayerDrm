@@ -200,6 +200,11 @@ Yes ✅ The url in DRM type played smoothly. All dash type contents are played o
 
 <img src="https://github.com/halilozel1903/ExoPlayerDrm/blob/master/drm_dash_not_pic1.png" width="250" /> <img src="https://github.com/halilozel1903/ExoPlayerDrm/blob/master/drm_dash_not_pic2.png" width="250" /> <br>
 
+## Donation 💸
+
+If this project help 💁 you to develop, you can give me a cup of coffee. ☕
+
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/halilozel1903)
 
 ## Resources 📚
 - https://exoplayer.dev/drm.html
