@@ -24,12 +24,15 @@ class MainActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityMainBinding.inflate(layoutInflater)
-        val view = binding.root
-        setContentView(view)
+        setView()
         initializePlayer()
     }
 
+    private fun setView() {
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
+    }
 
     private fun initializePlayer() {
         val defaultHttpDataSourceFactory = DefaultHttpDataSource.Factory()
@@ -77,9 +80,9 @@ class MainActivity : Activity() {
     }
 
     companion object {
-        const val URL = "https://bitmovin-a.akamaihd.net/content/art-of-motion_drm/mpds/11331.mpd"
-        const val DRM_LICENSE_URL = "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
-        const val USER_AGENT = "ExoPlayer-Drm"
-        val drmSchemeUuid = C.WIDEVINE_UUID // DRM Type
+        private const val URL = "https://bitmovin-a.akamaihd.net/content/art-of-motion_drm/mpds/11331.mpd"
+        private const val DRM_LICENSE_URL = "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
+        private const val USER_AGENT = "ExoPlayer-Drm"
+        private val drmSchemeUuid = C.WIDEVINE_UUID // DRM Type
     }
 }
