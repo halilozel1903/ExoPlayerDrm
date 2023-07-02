@@ -80,8 +80,10 @@ class MainActivity : Activity() {
     }
 
     companion object {
-        private const val URL = "https://bitmovin-a.akamaihd.net/content/art-of-motion_drm/mpds/11331.mpd"
-        private const val DRM_LICENSE_URL = "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
+        private const val URL =
+            "https://bitmovin-a.akamaihd.net/content/art-of-motion_drm/mpds/11331.mpd"
+        private const val DRM_LICENSE_URL =
+            "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
         private const val USER_AGENT = "ExoPlayer-Drm"
         private val drmSchemeUuid = C.WIDEVINE_UUID // DRM Type
     }
