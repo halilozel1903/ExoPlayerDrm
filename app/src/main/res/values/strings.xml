@@ -1,3 +1,14 @@
 <resources>
-    <string name="app_name">ExoPlayerDrm</string>
+    <string name="app_name">ExoPlayer DRM</string>
+    <string name="stream_widevine_media_item">Widevine DASH (MediaItem.DrmConfiguration)</string>
+    <string name="stream_widevine_session_manager">Widevine DASH (DefaultDrmSessionManager)</string>
+    <string name="stream_clear_dash">Clear DASH (no DRM)</string>
+    <string name="stream_clearkey">ClearKey DASH (needs your license URL)</string>
+    <string name="status_ready">Media3 builds DefaultDrmSessionManager from the MediaItem DRM UUID and license URI.</string>
+    <string name="status_playing_widevine">Playing Google Widevine test DASH. License: Google UAT test proxy from the Media3 demo. This is not a production license server.</string>
+    <string name="status_playing_widevine_manager">Playing the same Widevine test stream with an explicit DefaultDrmSessionManager and HttpMediaDrmCallback.</string>
+    <string name="status_playing_clear">Playing the matching clear (unencrypted) Tears of Steel DASH stream. No license server is used.</string>
+    <string name="status_clearkey_missing">ClearKey is supported by Media3 (C.CLEARKEY_UUID), but this sample does not ship keys or a license server. Set drm.clearkey.manifestUri and drm.clearkey.licenseUri in gradle.properties, then rebuild.</string>
+    <string name="status_playing_clearkey">Playing ClearKey DASH with license URI %1$s. Keys must be issued by that server for this manifest.</string>
+    <string name="status_error">Playback error: %1$s</string>
 </resources>
