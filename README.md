@@ -1,239 +1,108 @@
-## What is DRM? 🤔
+# ExoPlayer DRM (AndroidX Media3)
 
-![Screenshot](https://miro.medium.com/max/1400/1*LtFxnStWjom2xYQvZsHFow.png)
+Sample Android app that plays **DASH** with **Widevine** and **ClearKey** using
+[AndroidX Media3](https://developer.android.com/media/media3) **1.11.1**
+(`androidx.media3:media3-exoplayer`, `media3-exoplayer-dash`, `media3-ui`).
 
-Digital rights management (DRM) is a way to protect copyrights for digital media. This approach includes the use of technologies that limit the copying and use of copyrighted works and proprietary software.
+ExoPlayer 2 (`com.google.android.exoplayer`) is not used. DRM is configured with
+the current Media3 APIs: `MediaItem.DrmConfiguration`, and optionally an explicit
+`DefaultDrmSessionManager` + `HttpMediaDrmCallback`.
 
-In a way, digital rights management allows publishers or authors to control what paying users can do with their works. For companies, implementing digital rights management systems or processes can help to prevent users from accessing or using certain assets, allowing the organization to avoid legal issues that arise from unauthorized use. Today, DRM is playing a growing role in data security.
+## What this sample demonstrates vs what you must supply
 
-With the rise of peer-to-peer file exchange services such as torrent sites, online piracy has been the bane of copyrighted material. DRM technologies do not catch those who engage in piracy. Instead, they make it impossible to steal or share the content in the first place.
+| Piece | Out of the box | You must supply |
+| --- | --- | --- |
+| Media3 player + DASH | Yes | — |
+| `MediaItem.DrmConfiguration` for Widevine / ClearKey | Yes (code) | Matching license URI for **your** content |
+| `DefaultDrmSessionManager` HTTP license callback | Yes (code) | Same license URI as above |
+| Widevine CDM on the device | Device-dependent (most phones) | Hardware/security level is not controllable from the app |
+| Google Widevine **test** DASH + UAT license proxy | Used as the default stream | **Not** a production license server; it can fail, rate-limit, or disappear |
+| ClearKey playback | API only | ClearKey-protected manifest **and** a license URL (or your own `MediaDrmCallback`) that returns keys for that stream |
+| Production DRM (Widevine/PlayReady from a CDN) | No | Your packager, license service, and auth headers |
 
+This sample does **not** invent license servers, wrap keys, or fake `MediaDrm`.
+ClearKey keys are **not** hardcoded.
 
-For more please read this article : https://streaminglearningcenter.com/articles/what-is-drm.html <br> <br>
+## Supported DRM schemes (Media3 / Android)
 
-## Digital rights management - ExoPlayer 📺
+From [Media3 DRM documentation](https://developer.android.com/media/media3/exoplayer/drm):
 
-ExoPlayer uses Android’s ```MediaDrm``` API to support DRM protected playbacks. 
+| Scheme | Typical API level | Formats |
+| --- | --- | --- |
+| Widevine `cenc` | 19+ | DASH, HLS (FMP4) |
+| Widevine `cbcs` | 25+ | DASH, HLS (FMP4) |
+| ClearKey `cenc` | 21+ | DASH |
+| PlayReady SL2000 | Android TV | DASH, SmoothStreaming, HLS (FMP4) |
 
-The minimum Android versions required for different supported DRM schemes, along with the streaming formats for which they’re supported, are:
+PlayReady is not demonstrated here; it is not available on standard phones.
 
-DRM scheme	 | Android version number	 | Android API level | Supported formats
------------- | ------------- | ------------ | -------------
-Widevine “cenc”	 | 4.4	| 19 | DASH, HLS (FMP4 only)
-Widevine “cbcs” | 7.1 | 25 | DASH, HLS (FMP4 only)
-ClearKey | 5.0 | 21 | DASH
-PlayReady SL2000 | AndroidTV | AndroidTV	| DASH, SmoothStreaming, HLS (FMP4 only) 
+## Default test content
 
-In order to play DRM protected content with ExoPlayer, the UUID of the DRM system and the license server URI should be specified when building a media item. 
-The player will then use these properties to build a default implementation of ```DrmSessionManager```, called ```DefaultDrmSessionManager```, 
-that’s suitable for most use cases. For some use cases additional DRM properties may be necessary, as outlined in the sections below.
+The Widevine and clear DASH URLs are the **Tears of Steel** assets published for the
+[AndroidX Media3 demo](https://github.com/androidx/media/blob/release/demos/main/src/main/assets/media.exolist.json):
 
-For more please read document : https://exoplayer.dev/drm.html <br> <br>
+- Encrypted: `https://storage.googleapis.com/wvmedia/cenc/h264/tears/tears.mpd`
+- Clear: `https://storage.googleapis.com/wvmedia/clear/h264/tears/tears.mpd`
+- Widevine license (Google UAT **test** proxy):  
+  `https://proxy.uat.widevine.com/proxy?video_id=2015_tears&provider=widevine_test`
 
-## How to use DRM in ExoPlayer ⁉️
+If Widevine playback fails, the UI shows the Media3 `PlaybackException` error code.
+Common causes: the UAT proxy rejecting the device, no Widevine CDM, network blocks,
+or a security-level mismatch. That is expected for a public test proxy.
 
-In order to play a Drm video in Exoplayer, we need to have a DASH(.mdp) type video url. We will decode the encrypted video and play it. 
+## Build and run
 
-First of all, we can start our example by following the steps below.
+Requirements:
 
-### Step - 1️⃣
+- Android Studio Ladybug / AGP 8.11-compatible IDE, or JDK 17+
+- Android device or emulator, **API 24+**
+- For Widevine: a device/emulator image that includes Widevine (Google Play system images are more likely than AOSP)
 
-We are creating an Android project in the Kotlin language.
-
-### Step - 2️⃣
-
-We add the internet permission to the Android Manifest file.
-
-```kotlin
-<uses-permission android:name="android.permission.INTERNET"/>
+```bash
+./gradlew :app:assembleDebug
 ```
 
-### Step - 3️⃣
+Install the debug APK on a device, or run the `app` configuration from Android Studio.
 
-Add the link of the ExoPlayer library to the .build gradle file.
+In the app:
 
-```kotlin 
-implementation 'com.google.android.exoplayer:exoplayer:2.17.1'
+1. **Widevine DASH (MediaItem.DrmConfiguration)** — recommended Media3 path. The player
+   builds `DefaultDrmSessionManager` from the media item.
+2. **Widevine DASH (DefaultDrmSessionManager)** — same stream, but the app installs
+   `HttpMediaDrmCallback` itself via `DefaultMediaSourceFactory.setDrmSessionManagerProvider`.
+3. **Clear DASH** — same title without DRM (no license server).
+4. **ClearKey DASH** — disabled until you set Gradle properties (below).
+
+## Supplying your own license server
+
+Add properties to `gradle.properties` (or pass `-P` on the Gradle command line) and rebuild:
+
+```properties
+drm.widevine.manifestUri=https://your-cdn.example/stream.mpd
+drm.widevine.licenseUri=https://your-widevine-license.example/license
+
+drm.clearkey.manifestUri=https://your-cdn.example/clearkey.mpd
+drm.clearkey.licenseUri=https://your-clearkey-license.example/license
 ```
 
+Empty ClearKey properties leave that radio option as a documented no-op so the sample
+never pretends to decrypt without keys.
 
-### Step - 4️⃣
+License request headers (tokens, cookies) belong on `MediaItem.DrmConfiguration.Builder.setLicenseRequestHeaders`
+or on a custom `MediaDrmCallback`. This sample does not add fake auth.
 
-If not enabled already, you need to turn on Java 8 support in all build.gradle files depending on ExoPlayer, by adding the following to the android section:
+## Media3 version
 
-```kotlin
-compileOptions {
-        targetCompatibility JavaVersion.VERSION_1_8
-}
-```
+| Module | Version | Maven |
+| --- | --- | --- |
+| `androidx.media3:media3-exoplayer` | 1.11.1 | [Google Maven](https://dl.google.com/dl/android/maven2/androidx/media3/media3-exoplayer/1.11.1/media3-exoplayer-1.11.1.pom) |
+| `androidx.media3:media3-exoplayer-dash` | 1.11.1 | same group |
+| `androidx.media3:media3-ui` | 1.11.1 | same group |
 
-### Step - 5️⃣
+Declared in `gradle/libs.versions.toml`.
 
-Add playerView to the ```activity_main.xml``` file.
+## Docs
 
-
-```kotlin 
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:argType="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".MainActivity">
-
-    <com.google.android.exoplayer2.ui.StyledPlayerView
-        android:id="@+id/playerView"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        argType:resize_mode="fixed_width"
-        argType:show_buffering="when_playing"
-        argType:show_fastforward_button="true"
-        argType:show_next_button="false"
-        argType:show_previous_button="false"
-        argType:show_rewind_button="true"
-        argType:show_subtitle_button="true"
-        argType:use_artwork="true"
-        argType:use_controller="true">
-
-    </com.google.android.exoplayer2.ui.StyledPlayerView>
-
-</androidx.constraintlayout.widget.ConstraintLayout>
-```
-
-
-### Step - 6️⃣
-
-Player, binding variables have been defined.
-
-```kotlin
-private lateinit var playerView: ExoPlayer
-private lateinit var binding: ActivityMainBinding
-```
-
-### Step - 7️⃣
-
-A function has been created for the Factory operation.
-
-   ```kotlin
-     val defaultHttpDataSourceFactory = DefaultHttpDataSource.Factory()
-                .setUserAgent(userAgent)
-                .setTransferListener(
-                    DefaultBandwidthMeter.Builder(context)
-                        .setResetOnNetworkTypeChange(false)
-                        .build()
-                )
-
-            val dashChunkSourceFactory: DashChunkSource.Factory = DefaultDashChunkSource.Factory(
-                defaultHttpDataSourceFactory
-            )
- ```
- 
- ### Step - 8️⃣
- 
- We have created a method in which the necessary operations are performed to play a drm type video.
- 
-   ```kotlin
-     val dashMediaSource =
-                DashMediaSource.Factory(dashChunkSourceFactory, manifestDataSourceFactory)
-                    .createMediaSource(
-                        MediaItem.Builder()
-                            .setUri(Uri.parse(url))
-                             // DRM Configuration
-                            .setDrmConfiguration(
-                                MediaItem.DrmConfiguration.Builder(drmSchemeUuid)
-                                    .setLicenseUri(drmLicenseUrl).build()
-                            )
-                            .setMimeType(MimeTypes.APPLICATION_MPD)
-                            .setTag(null)
-                            .build()
-                    )
- ```
- 
-  ### Step - 9️⃣
-  
-  Added url, drm license to play. It is made ready to be played.
-  
-  **Drm License Url** : https://proxy.uat.widevine.com/proxy?provider=widevine_test
-  
-  **Drm Url** : https://bitmovin-a.akamaihd.net/content/art-of-motion_drm/mpds/11331.mpd
-  
- ```kotlin 
-  // Prepare the player.
-          playerView = ExoPlayer.Builder(this)
-              .setSeekForwardIncrementMs(10000)
-              .setSeekBackIncrementMs(10000)
-              .build()
-          playerView.playWhenReady = true
-          binding.playerView.player = playerView
-          playerView.setMediaSource(dashMediaSource, true)
-          playerView.prepare()
-  ```
-
-### Step - 🔟
-
-Call the ```initializePlayer()``` function inside `onCreate.`
-
-  ```kotlin
-    override fun onCreate(savedInstanceState: Bundle?) {
-            super.onCreate(savedInstanceState)
-            binding = ActivityMainBinding.inflate(layoutInflater)
-            val view = binding.root
-            setContentView(view)
-            initializePlayer()
-        }
-    }
-```
-
-### Result 📌
-
-Yes ✅ The url in DRM type played smoothly. All dash type contents are played on the player with the Drm setting.
-
-<img src="https://github.com/halilozel1903/ExoPlayerDrm/blob/master/drm_dash_pic1.png" width="250" /> <img src="https://github.com/halilozel1903/ExoPlayerDrm/blob/master/drm_dash_pic2.png" width="250" /> <br>
-
-
-**But** ```setDrmConfiguration``` If you make a comment line, you will not be able to view the content.
-
-```kotlin
- .setDrmConfiguration(MediaItem.DrmConfiguration.Builder(drmSchemeUuid)
-                      .setLicenseUri(drmLicenseUrl).build())
- ``` 
-
-<img src="https://github.com/halilozel1903/ExoPlayerDrm/blob/master/drm_dash_not_pic1.png" width="250" /> <img src="https://github.com/halilozel1903/ExoPlayerDrm/blob/master/drm_dash_not_pic2.png" width="250" /> <br>
-
-## Donation 💸
-
-If this project help 💁 you to develop, you can give me a cup of coffee. ☕
-
-[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/halilozel1903)
-
-## Resources 📚
-- https://exoplayer.dev/drm.html
-- https://streaminglearningcenter.com/articles/what-is-drm.html
-- https://digitalguardian.com/blog/what-digital-rights-management
-- https://bitmovin.com/demos/stream-test?format=dash&manifest=https%3A%2F%2Fbitmovin-a.akamaihd.net%2Fcontent%2Fart-of-motion_drm%2Fmpds%2F11331.mpd
-
-
-## License 📋
-```
-MIT License
-
-Copyright (c) 2023 Halil OZEL
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-```
+- [Media3 DRM](https://developer.android.com/media/media3/exoplayer/drm)
+- [Media3 releases](https://developer.android.com/jetpack/androidx/releases/media3)
+- [Media3 migration](https://developer.android.com/media/media3/exoplayer/migration-guide)
