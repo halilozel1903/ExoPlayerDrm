@@ -1,90 +1,120 @@
 package com.halil.ozel.exoplayerdrm
 
-import android.app.Activity
-import android.net.Uri
 import android.os.Bundle
-import com.google.android.exoplayer2.C
-import com.google.android.exoplayer2.ExoPlayer
-import com.google.android.exoplayer2.MediaItem
-import com.google.android.exoplayer2.source.dash.DashChunkSource
-import com.google.android.exoplayer2.source.dash.DashMediaSource
-import com.google.android.exoplayer2.source.dash.DefaultDashChunkSource
-import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSource
-import com.google.android.exoplayer2.util.MimeTypes
+import androidx.annotation.OptIn
+import androidx.appcompat.app.AppCompatActivity
+import androidx.media3.common.MediaItem
+import androidx.media3.common.PlaybackException
+import androidx.media3.common.Player
+import androidx.media3.common.util.UnstableApi
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.exoplayer.source.DefaultMediaSourceFactory
 import com.halil.ozel.exoplayerdrm.databinding.ActivityMainBinding
 
-/** DRM URL : https://bitmovin-a.akamaihd.net/content/art-of-motion_drm/mpds/11331.mpd **/
-/** NON DRM URL : https://bitmovin-a.akamaihd.net/content/MI201109210084_1/mpds/f08e80da-bf1d-4e3d-8899-f0f6155f6efa.mpd **/
+class MainActivity : AppCompatActivity() {
 
-class MainActivity : Activity() {
-
-    private lateinit var playerView: ExoPlayer
     private lateinit var binding: ActivityMainBinding
+    private var player: ExoPlayer? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setView()
-        initializePlayer()
-    }
-
-    private fun setView() {
         binding = ActivityMainBinding.inflate(layoutInflater)
-        val view = binding.root
-        setContentView(view)
+        setContentView(binding.root)
+        binding.streamGroup.setOnCheckedChangeListener { _, _ -> startPlayback() }
     }
 
-    private fun initializePlayer() {
-        val defaultHttpDataSourceFactory = DefaultHttpDataSource.Factory()
-            .setUserAgent(USER_AGENT)
-            .setTransferListener(
-                DefaultBandwidthMeter.Builder(this)
-                    .setResetOnNetworkTypeChange(false)
-                    .build()
-            )
+    override fun onStart() {
+        super.onStart()
+        startPlayback()
+    }
 
-        val dashChunkSourceFactory: DashChunkSource.Factory = DefaultDashChunkSource.Factory(
-            defaultHttpDataSourceFactory
+    override fun onStop() {
+        super.onStop()
+        releasePlayer()
+    }
+
+    private fun startPlayback() {
+        releasePlayer()
+        when (binding.streamGroup.checkedRadioButtonId) {
+            R.id.streamWidevineMediaItem -> playWidevineWithMediaItem()
+            R.id.streamWidevineSessionManager -> playWidevineWithSessionManager()
+            R.id.streamClear -> playClearDash()
+            R.id.streamClearKey -> playClearKey()
+        }
+    }
+
+    private fun playWidevineWithMediaItem() {
+        val mediaItem = DrmMediaItems.widevineDash(
+            manifestUri = widevineManifestUri(),
+            licenseUri = widevineLicenseUri()
         )
-        val manifestDataSourceFactory = DefaultHttpDataSource.Factory().setUserAgent(USER_AGENT)
-        val dashMediaSource =
-            DashMediaSource.Factory(dashChunkSourceFactory, manifestDataSourceFactory)
-                .createMediaSource(
-                    MediaItem.Builder()
-                        .setUri(Uri.parse(URL))
-                        // DRM Configuration
-                        .setDrmConfiguration(
-                            MediaItem.DrmConfiguration.Builder(drmSchemeUuid)
-                                .setLicenseUri(DRM_LICENSE_URL).build()
-                        )
-                        .setMimeType(MimeTypes.APPLICATION_MPD)
-                        .setTag(null)
-                        .build()
-                )
-
-
-        // Prepare the player.
-        ExoPlayer.Builder(this)
-            .setSeekForwardIncrementMs(10000)
-            .setSeekBackIncrementMs(10000)
-            .build().also { playerView = it }
-        playerView.playWhenReady = true
-        binding.playerView.player = playerView
-        playerView.setMediaSource(dashMediaSource, true)
-        playerView.prepare()
+        player = ExoPlayer.Builder(this).build().also { exoPlayer ->
+            attachPlayer(exoPlayer, mediaItem)
+        }
+        binding.status.setText(R.string.status_playing_widevine)
     }
 
-    override fun onPause() {
-        super.onPause()
-        playerView.playWhenReady = false
+    @OptIn(UnstableApi::class)
+    private fun playWidevineWithSessionManager() {
+        val mediaItem = DrmMediaItems.clearDash(widevineManifestUri())
+        val drmSessionManager = DrmSessionManagers.widevine(widevineLicenseUri())
+        val mediaSourceFactory = DefaultMediaSourceFactory(this)
+            .setDrmSessionManagerProvider { drmSessionManager }
+        player = ExoPlayer.Builder(this)
+            .setMediaSourceFactory(mediaSourceFactory)
+            .build()
+            .also { exoPlayer -> attachPlayer(exoPlayer, mediaItem) }
+        binding.status.setText(R.string.status_playing_widevine_manager)
     }
 
-    companion object {
-        private const val URL =
-            "https://bitmovin-a.akamaihd.net/content/art-of-motion_drm/mpds/11331.mpd"
-        private const val DRM_LICENSE_URL =
-            "https://proxy.uat.widevine.com/proxy?provider=widevine_test"
-        private const val USER_AGENT = "ExoPlayer-Drm"
-        private val drmSchemeUuid = C.WIDEVINE_UUID // DRM Type
+    private fun playClearDash() {
+        val mediaItem = DrmMediaItems.clearDash(DemoStreams.CLEAR_DASH_H264)
+        player = ExoPlayer.Builder(this).build().also { exoPlayer ->
+            attachPlayer(exoPlayer, mediaItem)
+        }
+        binding.status.setText(R.string.status_playing_clear)
+    }
+
+    private fun playClearKey() {
+        val manifestUri = BuildConfig.CLEARKEY_MANIFEST_URI
+        val licenseUri = BuildConfig.CLEARKEY_LICENSE_URI
+        if (manifestUri.isBlank() || licenseUri.isBlank()) {
+            binding.status.setText(R.string.status_clearkey_missing)
+            return
+        }
+        val mediaItem = DrmMediaItems.clearKeyDash(manifestUri, licenseUri)
+        player = ExoPlayer.Builder(this).build().also { exoPlayer ->
+            attachPlayer(exoPlayer, mediaItem)
+        }
+        binding.status.text = getString(
+            R.string.status_playing_clearkey,
+            licenseUri
+        )
+    }
+
+    private fun attachPlayer(exoPlayer: ExoPlayer, mediaItem: MediaItem) {
+        binding.playerView.player = exoPlayer
+        exoPlayer.addListener(object : Player.Listener {
+            override fun onPlayerError(error: PlaybackException) {
+                binding.status.text = getString(R.string.status_error, error.errorCodeName)
+            }
+        })
+        exoPlayer.setMediaItem(mediaItem)
+        exoPlayer.playWhenReady = true
+        exoPlayer.prepare()
+    }
+
+    private fun releasePlayer() {
+        binding.playerView.player = null
+        player?.release()
+        player = null
+    }
+
+    private fun widevineManifestUri(): String {
+        return BuildConfig.WIDEVINE_MANIFEST_URI.ifBlank { DemoStreams.WIDEVINE_DASH_CENC_H264 }
+    }
+
+    private fun widevineLicenseUri(): String {
+        return BuildConfig.WIDEVINE_LICENSE_URI.ifBlank { DemoStreams.WIDEVINE_UAT_LICENSE_URI }
     }
 }

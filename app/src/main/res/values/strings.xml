@@ -9,5 +9,6 @@
     <string name="status_playing_widevine_manager">Playing the same Widevine test stream with an explicit DefaultDrmSessionManager and HttpMediaDrmCallback.</string>
     <string name="status_playing_clear">Playing the matching clear (unencrypted) Tears of Steel DASH stream. No license server is used.</string>
     <string name="status_clearkey_missing">ClearKey is supported by Media3 (C.CLEARKEY_UUID), but this sample does not ship keys or a license server. Set drm.clearkey.manifestUri and drm.clearkey.licenseUri in gradle.properties, then rebuild.</string>
+    <string name="status_playing_clearkey">Playing ClearKey DASH with license URI %1$s. Keys must be issued by that server for this manifest.</string>
     <string name="status_error">Playback error: %1$s</string>
 </resources>
