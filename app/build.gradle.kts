@@ -14,6 +14,19 @@ android {
         versionCode = 2
         versionName = "2.0"
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        fun quotedProperty(name: String): String {
+            val value = providers.gradleProperty(name).orNull.orEmpty()
+            val escaped = value.replace("\\", "\\\\").replace("\"", "\\\"")
+            return "\"$escaped\""
+        }
+
+        // Optional overrides. Empty values fall back to Google Media3 demo test URLs
+        // (Widevine) or disable playback (ClearKey — no keys are bundled).
+        buildConfigField("String", "WIDEVINE_MANIFEST_URI", quotedProperty("drm.widevine.manifestUri"))
+        buildConfigField("String", "WIDEVINE_LICENSE_URI", quotedProperty("drm.widevine.licenseUri"))
+        buildConfigField("String", "CLEARKEY_MANIFEST_URI", quotedProperty("drm.clearkey.manifestUri"))
+        buildConfigField("String", "CLEARKEY_LICENSE_URI", quotedProperty("drm.clearkey.licenseUri"))
     }
 
     buildTypes {
