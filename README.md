@@ -5,23 +5,39 @@ Sample Android app that plays **DASH** with **Widevine** and **ClearKey** using
 (`androidx.media3:media3-exoplayer`, `media3-exoplayer-dash`, `media3-ui`).
 
 ExoPlayer 2 (`com.google.android.exoplayer`) is not used. DRM is configured with
-the current Media3 APIs: `MediaItem.DrmConfiguration`, and optionally an explicit
-`DefaultDrmSessionManager` + `HttpMediaDrmCallback`.
+the current Media3 APIs: `MediaItem.DrmConfiguration`, `DefaultDrmSessionManager`,
+`HttpMediaDrmCallback`, and (for developer-supplied ClearKey JSON)
+`LocalMediaDrmCallback`. Player failures in the DRM range are shown as
+`PlaybackException.ERROR_CODE_DRM_*`.
 
-## What this sample demonstrates vs what you must supply
+## What works out of the box vs what you must supply
 
 | Piece | Out of the box | You must supply |
 | --- | --- | --- |
 | Media3 player + DASH | Yes | — |
-| `MediaItem.DrmConfiguration` for Widevine / ClearKey | Yes (code) | Matching license URI for **your** content |
-| `DefaultDrmSessionManager` HTTP license callback | Yes (code) | Same license URI as above |
-| Widevine CDM on the device | Device-dependent (most phones) | Hardware/security level is not controllable from the app |
-| Google Widevine **test** DASH + UAT license proxy | Used as the default stream | **Not** a production license server; it can fail, rate-limit, or disappear |
-| ClearKey playback | API only | ClearKey-protected manifest **and** a license URL (or your own `MediaDrmCallback`) that returns keys for that stream |
-| Production DRM (Widevine/PlayReady from a CDN) | No | Your packager, license service, and auth headers |
+| Clear DASH (Tears of Steel) | Yes | — |
+| Widevine **Google test** DASH + UAT license proxy | Yes (labeled as test) | Nothing, but the proxy is **not** a production license server; it can fail, rate-limit, or disappear |
+| Custom Widevine (`drm.widevine.licenseUri`) | UI state **MISSING LICENSE URL** until set | A real license server URL that matches **your** content (optional manifest + license request headers) |
+| `MediaItem.DrmConfiguration` / `DefaultDrmSessionManager` | Yes (code) | Matching license URI for your content |
+| Widevine CDM | Device-dependent | Google Play system images usually include it; many AOSP emulators do not (`MediaDrm.isCryptoSchemeSupported`) |
+| ClearKey HTTP license | API + empty Gradle placeholders | ClearKey-protected manifest **and** `drm.clearkey.licenseUri` |
+| ClearKey local keys | API + `LocalMediaDrmCallback` | Your own W3C ClearKey JSON via `drm.clearkey.keysFile` (gitignored). **No keys are hardcoded** |
+| Production DRM / PlayReady on a phone | No | PlayReady SL2000 is documented for Android TV, not this sample |
 
 This sample does **not** invent license servers, wrap keys, or fake `MediaDrm`.
-ClearKey keys are **not** hardcoded.
+
+## UI states
+
+The label above the status text is one of:
+
+- **CLEAR** — unencrypted Google test DASH
+- **WIDEVINE · GOOGLE TEST** — Media3 demo Tears of Steel + `proxy.uat.widevine.com`
+- **WIDEVINE · CUSTOM LICENSE** — Gradle `drm.widevine.licenseUri` is set
+- **MISSING LICENSE URL** — custom Widevine or ClearKey selected without a license URL or keys JSON; playback is **not** started
+- **CLEARKEY** — developer-supplied license URL or local keys JSON
+- **CDM UNSUPPORTED** — `MediaDrm.isCryptoSchemeSupported` is false (no fake fallback)
+- **DRM ERROR** — `ERROR_CODE_DRM_*` from the player
+- **PLAYBACK ERROR** — other Media3 `PlaybackException` codes
 
 ## Supported DRM schemes (Media3 / Android)
 
@@ -34,7 +50,7 @@ From [Media3 DRM documentation](https://developer.android.com/media/media3/exopl
 | ClearKey `cenc` | 21+ | DASH |
 | PlayReady SL2000 | Android TV | DASH, SmoothStreaming, HLS (FMP4) |
 
-PlayReady is not demonstrated here; it is not available on standard phones.
+PlayReady is **not** implemented here; phones do not expose that stack the way Android TV does.
 
 ## Default test content
 
@@ -46,9 +62,8 @@ The Widevine and clear DASH URLs are the **Tears of Steel** assets published for
 - Widevine license (Google UAT **test** proxy):  
   `https://proxy.uat.widevine.com/proxy?video_id=2015_tears&provider=widevine_test`
 
-If Widevine playback fails, the UI shows the Media3 `PlaybackException` error code.
-Common causes: the UAT proxy rejecting the device, no Widevine CDM, network blocks,
-or a security-level mismatch. That is expected for a public test proxy.
+Those URLs are used **only** by the two “Google test” radios. Custom Widevine does
+not silently fall back to the UAT proxy.
 
 ## Build and run
 
@@ -60,36 +75,48 @@ Requirements:
 
 ```bash
 ./gradlew :app:assembleDebug
+./gradlew :app:testDebugUnitTest
 ```
-
-Install the debug APK on a device, or run the `app` configuration from Android Studio.
 
 In the app:
 
-1. **Widevine DASH (MediaItem.DrmConfiguration)** — recommended Media3 path. The player
-   builds `DefaultDrmSessionManager` from the media item.
-2. **Widevine DASH (DefaultDrmSessionManager)** — same stream, but the app installs
-   `HttpMediaDrmCallback` itself via `DefaultMediaSourceFactory.setDrmSessionManagerProvider`.
-3. **Clear DASH** — same title without DRM (no license server).
-4. **ClearKey DASH** — disabled until you set Gradle properties (below).
+1. **Widevine DASH — Google test (MediaItem.DrmConfiguration)** — recommended Media3 path.
+2. **Widevine DASH — Google test (DefaultDrmSessionManager)** — same stream with
+   `HttpMediaDrmCallback` installed on `DefaultMediaSourceFactory`.
+3. **Custom Widevine DASH** — requires `drm.widevine.licenseUri`; otherwise **MISSING LICENSE URL**.
+4. **Clear DASH** — same title without DRM.
+5. **ClearKey DASH** — requires your license URL or keys JSON.
 
-## Supplying your own license server
+## Supplying your own license server or ClearKey keys
 
 Add properties to `gradle.properties` (or pass `-P` on the Gradle command line) and rebuild:
 
 ```properties
 drm.widevine.manifestUri=https://your-cdn.example/stream.mpd
 drm.widevine.licenseUri=https://your-widevine-license.example/license
+drm.widevine.licenseRequestHeaders=Authorization=Bearer your-token
 
 drm.clearkey.manifestUri=https://your-cdn.example/clearkey.mpd
 drm.clearkey.licenseUri=https://your-clearkey-license.example/license
 ```
 
-Empty ClearKey properties leave that radio option as a documented no-op so the sample
-never pretends to decrypt without keys.
+For ClearKey **without** a license HTTP server, put a W3C ClearKey response in a
+local file (already gitignored as `local-clearkey.json`) and point Gradle at it:
 
-License request headers (tokens, cookies) belong on `MediaItem.DrmConfiguration.Builder.setLicenseRequestHeaders`
-or on a custom `MediaDrmCallback`. This sample does not add fake auth.
+```properties
+drm.clearkey.manifestUri=https://your-cdn.example/clearkey.mpd
+drm.clearkey.keysFile=local-clearkey.json
+```
+
+Expected JSON shape (fill in **your** `k` / `kid` values; do not commit production keys):
+
+```json
+{"keys":[{"kty":"oct","k":"<base64url-key>","kid":"<base64url-kid>"}]}
+```
+
+License request headers also belong on
+`MediaItem.DrmConfiguration.Builder.setLicenseRequestHeaders` or
+`HttpMediaDrmCallback.setKeyRequestProperty`. This sample does not add fake auth.
 
 ## Media3 version
 
