@@ -7,3 +7,5 @@
 .externalNativeBuild
 .cxx
 /.idea/
+/local-clearkey.json
+
