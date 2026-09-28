@@ -47,7 +47,7 @@ These extras sit on top of the Media3 sample. They do **not** add a license serv
 | --- | --- | --- |
 | `DrmSessionEventListener` | Session acquire / keys loaded / manager error / release, shown in the UI and via `EventLogger` on logcat | Events never include license keys. Wired through `AnalyticsListener` because ExoPlayer does not expose `addDrmSessionEventListener`. |
 | UUID + CDM properties | Prints Widevine / ClearKey UUID and `MediaDrm` strings `securityLevel`, `hdcpLevel`, `maxHdcpLevel`, `version`, `systemId` | Properties are vendor-optional. Missing values show as `n/a`. PlayReady is not opened on phones. |
-| `forceDefaultLicenseUri` | Checkbox: keep license HTTP on the app URI even if a DASH period lists `LicenseUrl` | The default Google Tears of Steel MPD is typically **one period**, so the flag is a no-op until you load a multi-period (or in-band license URL) asset. |
+| `forceDefaultLicenseUri` | Checkbox: keep license HTTP on the app URI even if a DASH period lists `LicenseUrl`. MediaItem path uses `DrmConfiguration.setForceDefaultLicenseUri`; session-manager path uses `HttpMediaDrmCallback(..., forceDefaultLicenseUrl)`. Media3 1.11.1 has no `DefaultDrmSessionManager.Builder` setter for this. | The default Google Tears of Steel MPD is typically **one period**, so the flag is a no-op until you load a multi-period (or in-band license URL) asset. |
 | License HTTP retries | `LoadErrorHandlingPolicy` with 4 DRM load attempts | Installed only on the **DefaultDrmSessionManager** radio. The MediaItem.DrmConfiguration path still uses ExoPlayer’s built-in DRM load policy. |
 
 ## Supported DRM schemes (Media3 / Android)

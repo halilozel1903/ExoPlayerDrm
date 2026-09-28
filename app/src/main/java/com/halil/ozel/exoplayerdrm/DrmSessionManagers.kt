@@ -36,10 +36,11 @@ object DrmSessionManagers {
         licenseRequestHeaders.forEach { (name, value) ->
             callback.setKeyRequestProperty(name, value)
         }
+        // forceDefaultLicenseUri is an HttpMediaDrmCallback flag in Media3 1.11.1
+        // (DefaultDrmSessionManager.Builder does not expose the same setter).
         return DefaultDrmSessionManager.Builder()
             .setUuidAndExoMediaDrmProvider(schemeUuid, FrameworkMediaDrm.DEFAULT_PROVIDER)
             .setMultiSession(true)
-            .setForceDefaultLicenseUri(forceDefaultLicenseUri)
             .setLoadErrorHandlingPolicy(LicenseHttpRetryPolicy())
             .build(callback)
     }
