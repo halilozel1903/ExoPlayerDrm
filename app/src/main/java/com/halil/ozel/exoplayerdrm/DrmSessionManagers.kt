@@ -25,10 +25,12 @@ object DrmSessionManagers {
     fun httpLicenseServer(
         schemeUuid: UUID,
         licenseUri: String,
-        licenseRequestHeaders: Map<String, String> = emptyMap()
+        licenseRequestHeaders: Map<String, String> = emptyMap(),
+        forceDefaultLicenseUri: Boolean = false
     ): DrmSessionManager {
         val callback = HttpMediaDrmCallback(
             licenseUri,
+            forceDefaultLicenseUri,
             DefaultHttpDataSource.Factory().setUserAgent(USER_AGENT)
         )
         licenseRequestHeaders.forEach { (name, value) ->
@@ -37,15 +39,23 @@ object DrmSessionManagers {
         return DefaultDrmSessionManager.Builder()
             .setUuidAndExoMediaDrmProvider(schemeUuid, FrameworkMediaDrm.DEFAULT_PROVIDER)
             .setMultiSession(true)
+            .setForceDefaultLicenseUri(forceDefaultLicenseUri)
+            .setLoadErrorHandlingPolicy(LicenseHttpRetryPolicy())
             .build(callback)
     }
 
     @OptIn(UnstableApi::class)
     fun widevine(
         licenseUri: String,
-        licenseRequestHeaders: Map<String, String> = emptyMap()
+        licenseRequestHeaders: Map<String, String> = emptyMap(),
+        forceDefaultLicenseUri: Boolean = false
     ): DrmSessionManager {
-        return httpLicenseServer(C.WIDEVINE_UUID, licenseUri, licenseRequestHeaders)
+        return httpLicenseServer(
+            C.WIDEVINE_UUID,
+            licenseUri,
+            licenseRequestHeaders,
+            forceDefaultLicenseUri
+        )
     }
 
     /**
