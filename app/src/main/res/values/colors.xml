@@ -3,4 +3,9 @@
     <color name="colorPrimary">#6200EE</color>
     <color name="colorPrimaryDark">#3700B3</color>
     <color name="colorAccent">#03DAC5</color>
+    <color name="statusClear">#A5D6A7</color>
+    <color name="statusWidevineTest">#80CBC4</color>
+    <color name="statusCustom">#90CAF9</color>
+    <color name="statusMissing">#FFCC80</color>
+    <color name="statusError">#EF9A9A</color>
 </resources>

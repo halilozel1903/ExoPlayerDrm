@@ -50,6 +50,13 @@
                 android:textColor="@android:color/white" />
 
             <RadioButton
+                android:id="@+id/streamCustomWidevine"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/stream_custom_widevine"
+                android:textColor="@android:color/white" />
+
+            <RadioButton
                 android:id="@+id/streamClear"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -65,13 +72,32 @@
         </RadioGroup>
 
         <TextView
-            android:id="@+id/status"
+            android:id="@+id/playbackState"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingTop="8dp"
+            android:text="@string/state_widevine_test"
+            android:textColor="@color/statusWidevineTest"
+            android:textSize="12sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/status"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="4dp"
             android:text="@string/status_ready"
             android:textColor="@android:color/white"
             android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/playReadyNote"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="8dp"
+            android:text="@string/playready_not_on_phone"
+            android:textColor="#BDBDBD"
+            android:textSize="11sp" />
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
