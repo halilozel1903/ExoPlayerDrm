@@ -50,6 +50,7 @@ object DrmDeviceCryptoInfo {
             }
             return "$name $uuid: $properties"
         } finally {
+            @Suppress("DEPRECATION")
             mediaDrm.release()
         }
     }

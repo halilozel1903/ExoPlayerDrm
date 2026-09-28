@@ -4,6 +4,7 @@ import androidx.annotation.OptIn
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.analytics.AnalyticsListener
 import androidx.media3.exoplayer.drm.DrmSessionEventListener
+import androidx.media3.exoplayer.drm.KeyRequestInfo
 
 /**
  * Forwards ExoPlayer DRM analytics to a [DrmSessionEventListener].
@@ -20,8 +21,8 @@ class DrmSessionAnalyticsForwarder(
         drmListener.onDrmSessionAcquired(eventTime.windowIndex, eventTime.mediaPeriodId, state)
     }
 
-    override fun onDrmKeysLoaded(eventTime: AnalyticsListener.EventTime) {
-        drmListener.onDrmKeysLoaded(eventTime.windowIndex, eventTime.mediaPeriodId)
+    override fun onDrmKeysLoaded(eventTime: AnalyticsListener.EventTime, keyRequestInfo: KeyRequestInfo) {
+        drmListener.onDrmKeysLoaded(eventTime.windowIndex, eventTime.mediaPeriodId, keyRequestInfo)
     }
 
     override fun onDrmSessionManagerError(eventTime: AnalyticsListener.EventTime, error: Exception) {

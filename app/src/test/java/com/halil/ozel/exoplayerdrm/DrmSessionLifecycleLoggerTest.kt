@@ -1,10 +1,13 @@
 package com.halil.ozel.exoplayerdrm
 
+import androidx.annotation.OptIn
+import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.drm.DrmSession
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.util.concurrent.atomic.AtomicReference
 
+@OptIn(UnstableApi::class)
 class DrmSessionLifecycleLoggerTest {
 
     @Test

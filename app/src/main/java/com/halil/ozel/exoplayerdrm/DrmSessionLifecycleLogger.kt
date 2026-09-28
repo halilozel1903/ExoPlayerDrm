@@ -4,6 +4,7 @@ import androidx.annotation.OptIn
 import androidx.media3.common.util.UnstableApi
 import androidx.media3.exoplayer.drm.DrmSession
 import androidx.media3.exoplayer.drm.DrmSessionEventListener
+import androidx.media3.exoplayer.drm.KeyRequestInfo
 import androidx.media3.exoplayer.source.MediaSource
 
 /**
@@ -27,7 +28,8 @@ class DrmSessionLifecycleLogger(
 
     override fun onDrmKeysLoaded(
         windowIndex: Int,
-        mediaPeriodId: MediaSource.MediaPeriodId?
+        mediaPeriodId: MediaSource.MediaPeriodId?,
+        keyRequestInfo: KeyRequestInfo
     ) {
         onMessage("DRM keys loaded window=$windowIndex")
     }
