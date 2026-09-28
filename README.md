@@ -70,6 +70,7 @@ not silently fall back to the UAT proxy.
 Requirements:
 
 - Android Studio Ladybug / AGP 8.11-compatible IDE, or JDK 17+
+- `compileSdk` **36** (required by Media3 1.11.1 AARs) and Kotlin **2.2.10**
 - Android device or emulator, **API 24+**
 - For Widevine: a device/emulator image that includes Widevine (Google Play system images are more likely than AOSP)
 
