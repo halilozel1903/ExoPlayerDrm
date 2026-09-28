@@ -36,4 +36,9 @@
     <string name="drm_error_system">ERROR_CODE_DRM_SYSTEM_ERROR: the platform MediaDrm stack failed. See logcat for the CDM vendor message.</string>
     <string name="drm_error_device_revoked">ERROR_CODE_DRM_DEVICE_REVOKED: this device’s Widevine credential was revoked by the license service.</string>
     <string name="drm_error_license_expired">ERROR_CODE_DRM_LICENSE_EXPIRED: the license is no longer valid. Request a new license from your real license server.</string>
+    <string name="force_default_license">Force app license URI (ignore MPD LicenseUrl)</string>
+    <string name="force_default_license_note">On. ExoPlayer will not follow a per-period or in-band LicenseUrl. The Google Tears of Steel test MPD is typically a single period, so this is a no-op until you load a multi-period asset.</string>
+    <string name="status_force_license_suffix"> forceDefaultLicenseUri=true (app license URI wins over the MPD).</string>
+    <string name="drm_session_log_empty">DRM session log: waiting for DrmSessionEventListener callbacks (acquire / keys loaded / error / release). These events do not include keys.</string>
+    <string name="crypto_info_unavailable">Could not query MediaDrm on this process: %1$s</string>
 </resources>

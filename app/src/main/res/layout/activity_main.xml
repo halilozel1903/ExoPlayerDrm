@@ -10,7 +10,7 @@
         android:id="@+id/playerView"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintBottom_toTopOf="@id/controls"
+        app:layout_constraintBottom_toTopOf="@id/controlsScroll"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -18,86 +18,125 @@
         app:show_subtitle_button="true"
         app:use_controller="true" />
 
-    <LinearLayout
-        android:id="@+id/controls"
+    <ScrollView
+        android:id="@+id/controlsScroll"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="@color/colorPrimaryDark"
-        android:orientation="vertical"
-        android:padding="12dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_max="280dp"
         app:layout_constraintStart_toStartOf="parent">
 
-        <RadioGroup
-            android:id="@+id/streamGroup"
+        <LinearLayout
+            android:id="@+id/controls"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:checkedButton="@id/streamWidevineMediaItem">
+            android:background="@color/colorPrimaryDark"
+            android:orientation="vertical"
+            android:padding="12dp">
 
-            <RadioButton
-                android:id="@+id/streamWidevineMediaItem"
+            <RadioGroup
+                android:id="@+id/streamGroup"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/stream_widevine_media_item"
-                android:textColor="@android:color/white" />
+                android:checkedButton="@id/streamWidevineMediaItem">
 
-            <RadioButton
-                android:id="@+id/streamWidevineSessionManager"
+                <RadioButton
+                    android:id="@+id/streamWidevineMediaItem"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/stream_widevine_media_item"
+                    android:textColor="@android:color/white" />
+
+                <RadioButton
+                    android:id="@+id/streamWidevineSessionManager"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/stream_widevine_session_manager"
+                    android:textColor="@android:color/white" />
+
+                <RadioButton
+                    android:id="@+id/streamCustomWidevine"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/stream_custom_widevine"
+                    android:textColor="@android:color/white" />
+
+                <RadioButton
+                    android:id="@+id/streamClear"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/stream_clear_dash"
+                    android:textColor="@android:color/white" />
+
+                <RadioButton
+                    android:id="@+id/streamClearKey"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/stream_clearkey"
+                    android:textColor="@android:color/white" />
+            </RadioGroup>
+
+            <CheckBox
+                android:id="@+id/forceDefaultLicense"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/stream_widevine_session_manager"
+                android:text="@string/force_default_license"
                 android:textColor="@android:color/white" />
 
-            <RadioButton
-                android:id="@+id/streamCustomWidevine"
+            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/stream_custom_widevine"
-                android:textColor="@android:color/white" />
+                android:text="@string/force_default_license_note"
+                android:textColor="@android:color/white"
+                android:textSize="11sp" />
 
-            <RadioButton
-                android:id="@+id/streamClear"
+            <TextView
+                android:id="@+id/playbackState"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/stream_clear_dash"
-                android:textColor="@android:color/white" />
+                android:paddingTop="8dp"
+                android:text="@string/state_widevine_test"
+                android:textColor="@color/statusWidevineTest"
+                android:textSize="12sp"
+                android:textStyle="bold" />
 
-            <RadioButton
-                android:id="@+id/streamClearKey"
+            <TextView
+                android:id="@+id/status"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/stream_clearkey"
-                android:textColor="@android:color/white" />
-        </RadioGroup>
+                android:paddingTop="4dp"
+                android:text="@string/status_ready"
+                android:textColor="@android:color/white"
+                android:textSize="12sp" />
 
-        <TextView
-            android:id="@+id/playbackState"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingTop="8dp"
-            android:text="@string/state_widevine_test"
-            android:textColor="@color/statusWidevineTest"
-            android:textSize="12sp"
-            android:textStyle="bold" />
+            <TextView
+                android:id="@+id/cryptoInfo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="6dp"
+                android:textColor="@android:color/white"
+                android:textSize="11sp"
+                tools:text="Widevine … securityLevel=n/a" />
 
-        <TextView
-            android:id="@+id/status"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingTop="4dp"
-            android:text="@string/status_ready"
-            android:textColor="@android:color/white"
-            android:textSize="12sp" />
+            <TextView
+                android:id="@+id/drmSessionLog"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="6dp"
+                android:text="@string/drm_session_log_empty"
+                android:textColor="@android:color/white"
+                android:textSize="11sp" />
 
-        <TextView
-            android:id="@+id/playReadyNote"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingTop="8dp"
-            android:text="@string/playready_not_on_phone"
-            android:textColor="#BDBDBD"
-            android:textSize="11sp" />
-    </LinearLayout>
+            <TextView
+                android:id="@+id/playReadyNote"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingTop="8dp"
+                android:text="@string/playready_not_on_phone"
+                android:textColor="#BDBDBD"
+                android:textSize="11sp" />
+        </LinearLayout>
+    </ScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
