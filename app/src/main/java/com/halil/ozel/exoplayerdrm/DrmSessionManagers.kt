@@ -25,27 +25,38 @@ object DrmSessionManagers {
     fun httpLicenseServer(
         schemeUuid: UUID,
         licenseUri: String,
-        licenseRequestHeaders: Map<String, String> = emptyMap()
+        licenseRequestHeaders: Map<String, String> = emptyMap(),
+        forceDefaultLicenseUri: Boolean = false
     ): DrmSessionManager {
         val callback = HttpMediaDrmCallback(
             licenseUri,
+            forceDefaultLicenseUri,
             DefaultHttpDataSource.Factory().setUserAgent(USER_AGENT)
         )
         licenseRequestHeaders.forEach { (name, value) ->
             callback.setKeyRequestProperty(name, value)
         }
+        // forceDefaultLicenseUri is an HttpMediaDrmCallback flag in Media3 1.11.1
+        // (DefaultDrmSessionManager.Builder does not expose the same setter).
         return DefaultDrmSessionManager.Builder()
             .setUuidAndExoMediaDrmProvider(schemeUuid, FrameworkMediaDrm.DEFAULT_PROVIDER)
             .setMultiSession(true)
+            .setLoadErrorHandlingPolicy(LicenseHttpRetryPolicy())
             .build(callback)
     }
 
     @OptIn(UnstableApi::class)
     fun widevine(
         licenseUri: String,
-        licenseRequestHeaders: Map<String, String> = emptyMap()
+        licenseRequestHeaders: Map<String, String> = emptyMap(),
+        forceDefaultLicenseUri: Boolean = false
     ): DrmSessionManager {
-        return httpLicenseServer(C.WIDEVINE_UUID, licenseUri, licenseRequestHeaders)
+        return httpLicenseServer(
+            C.WIDEVINE_UUID,
+            licenseUri,
+            licenseRequestHeaders,
+            forceDefaultLicenseUri
+        )
     }
 
     /**

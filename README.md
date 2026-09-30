@@ -39,6 +39,17 @@ The label above the status text is one of:
 - **DRM ERROR** — `ERROR_CODE_DRM_*` from the player
 - **PLAYBACK ERROR** — other Media3 `PlaybackException` codes
 
+## Extra DRM diagnostics (this branch)
+
+These extras sit on top of the Media3 sample. They do **not** add a license server.
+
+| Extra | What it does | Honest limit |
+| --- | --- | --- |
+| `DrmSessionEventListener` | Session acquire / keys loaded / manager error / release, shown in the UI and via `EventLogger` on logcat | Events never include license keys. Wired through `AnalyticsListener` because ExoPlayer does not expose `addDrmSessionEventListener`. |
+| UUID + CDM properties | Prints Widevine / ClearKey UUID and `MediaDrm` strings `securityLevel`, `hdcpLevel`, `maxHdcpLevel`, `version`, `systemId` | Properties are vendor-optional. Missing values show as `n/a`. PlayReady is not opened on phones. |
+| `forceDefaultLicenseUri` | Checkbox: keep license HTTP on the app URI even if a DASH period lists `LicenseUrl`. MediaItem path uses `DrmConfiguration.setForceDefaultLicenseUri`; session-manager path uses `HttpMediaDrmCallback(..., forceDefaultLicenseUrl)`. Media3 1.11.1 has no `DefaultDrmSessionManager.Builder` setter for this. | The default Google Tears of Steel MPD is typically **one period**, so the flag is a no-op until you load a multi-period (or in-band license URL) asset. |
+| License HTTP retries | `LoadErrorHandlingPolicy` with 4 DRM load attempts | Installed only on the **DefaultDrmSessionManager** radio. The MediaItem.DrmConfiguration path still uses ExoPlayer’s built-in DRM load policy. |
+
 ## Supported DRM schemes (Media3 / Android)
 
 From [Media3 DRM documentation](https://developer.android.com/media/media3/exoplayer/drm):
@@ -87,6 +98,9 @@ In the app:
 3. **Custom Widevine DASH** — requires `drm.widevine.licenseUri`; otherwise **MISSING LICENSE URL**.
 4. **Clear DASH** — same title without DRM.
 5. **ClearKey DASH** — requires your license URL or keys JSON.
+6. **Force app license URI** — optional. When checked, `MediaItem.DrmConfiguration.setForceDefaultLicenseUri(true)` (and the matching `HttpMediaDrmCallback` flag on the session-manager radio) ignores a per-period LicenseUrl. Leave it off for the Google test MPD.
+
+The status line, CDM property dump, and DRM session log are diagnostics only. They do not request extra licenses.
 
 ## Supplying your own license server or ClearKey keys
 
