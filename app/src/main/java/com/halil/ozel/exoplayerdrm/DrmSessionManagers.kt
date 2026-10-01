@@ -8,6 +8,8 @@ import androidx.media3.exoplayer.drm.DefaultDrmSessionManager
 import androidx.media3.exoplayer.drm.DrmSessionManager
 import androidx.media3.exoplayer.drm.FrameworkMediaDrm
 import androidx.media3.exoplayer.drm.HttpMediaDrmCallback
+import androidx.media3.exoplayer.drm.LocalMediaDrmCallback
+import java.nio.charset.StandardCharsets
 import java.util.UUID
 
 /**
@@ -20,20 +22,53 @@ import java.util.UUID
 object DrmSessionManagers {
 
     @OptIn(UnstableApi::class)
-    fun httpLicenseServer(schemeUuid: UUID, licenseUri: String): DrmSessionManager {
+    fun httpLicenseServer(
+        schemeUuid: UUID,
+        licenseUri: String,
+        licenseRequestHeaders: Map<String, String> = emptyMap(),
+        forceDefaultLicenseUri: Boolean = false
+    ): DrmSessionManager {
         val callback = HttpMediaDrmCallback(
             licenseUri,
+            forceDefaultLicenseUri,
             DefaultHttpDataSource.Factory().setUserAgent(USER_AGENT)
         )
+        licenseRequestHeaders.forEach { (name, value) ->
+            callback.setKeyRequestProperty(name, value)
+        }
+        // forceDefaultLicenseUri is an HttpMediaDrmCallback flag in Media3 1.11.1
+        // (DefaultDrmSessionManager.Builder does not expose the same setter).
         return DefaultDrmSessionManager.Builder()
             .setUuidAndExoMediaDrmProvider(schemeUuid, FrameworkMediaDrm.DEFAULT_PROVIDER)
             .setMultiSession(true)
+            .setLoadErrorHandlingPolicy(LicenseHttpRetryPolicy())
             .build(callback)
     }
 
     @OptIn(UnstableApi::class)
-    fun widevine(licenseUri: String): DrmSessionManager {
-        return httpLicenseServer(C.WIDEVINE_UUID, licenseUri)
+    fun widevine(
+        licenseUri: String,
+        licenseRequestHeaders: Map<String, String> = emptyMap(),
+        forceDefaultLicenseUri: Boolean = false
+    ): DrmSessionManager {
+        return httpLicenseServer(
+            C.WIDEVINE_UUID,
+            licenseUri,
+            licenseRequestHeaders,
+            forceDefaultLicenseUri
+        )
+    }
+
+    /**
+     * ClearKey with a developer-supplied W3C key response body. [keysJson] must be
+     * provided at build time; this method does not embed sample production keys.
+     */
+    @OptIn(UnstableApi::class)
+    fun clearKeyLocal(keysJson: String): DrmSessionManager {
+        val callback = LocalMediaDrmCallback(keysJson.toByteArray(StandardCharsets.UTF_8))
+        return DefaultDrmSessionManager.Builder()
+            .setUuidAndExoMediaDrmProvider(C.CLEARKEY_UUID, FrameworkMediaDrm.DEFAULT_PROVIDER)
+            .build(callback)
     }
 
     private const val USER_AGENT = "ExoPlayerDrm-Media3"

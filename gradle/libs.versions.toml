@@ -1,6 +1,6 @@
 [versions]
 agp = "8.11.0"
-kotlin = "2.0.21"
+kotlin = "2.2.10"
 # Verified on Google Maven: androidx.media3:media3-exoplayer:1.11.1
 # (group-index.xml + POM last-modified 2026-09-11)
 media3 = "1.11.1"
